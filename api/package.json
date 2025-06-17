@@ -1,0 +1,52 @@
+{
+	"name": "api",
+	"version": "1.0.0",
+	"description": "API for kanban desk test task using TS",
+	"keywords": [
+		"kanban",
+		"test",
+		"task"
+	],
+	"homepage": "https://github.com/nikitoss888/kanban-test-task-TS#readme",
+	"bugs": {
+		"url": "https://github.com/nikitoss888/kanban-test-task-TS/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nikitoss888/kanban-test-task-TS.git"
+	},
+	"license": "ISC",
+	"author": "Oleksiichuk Mykyta",
+	"type": "commonjs",
+	"main": "dist/index.ts",
+	"scripts": {
+		"build": "tsc",
+		"start": "node dist/index.js",
+		"dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+		"pretty": "prettier . --check",
+		"pretty:fix": "prettier --write .",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"check": "npm run pretty:fix && npm run lint:fix && npm run build"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.29.0",
+		"@types/express": "^5.0.3",
+		"@types/node": "^24.0.3",
+		"eslint": "^9.29.0",
+		"eslint-config-prettier": "^10.1.5",
+		"globals": "^16.2.0",
+		"prettier": "^3.5.3",
+		"prisma": "^6.9.0",
+		"ts-node": "^10.9.2",
+		"ts-node-dev": "^2.0.0",
+		"typescript": "^5.8.3",
+		"typescript-eslint": "^8.34.1"
+	},
+	"dependencies": {
+		"@prisma/client": "^6.9.0",
+		"cors": "^2.8.5",
+		"dotenv": "^16.5.0",
+		"express": "^5.1.0"
+	}
+}
