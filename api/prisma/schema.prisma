@@ -22,7 +22,7 @@ model Board {
 
 model Card {
   id          String  @id @default(uuid())
-  board       Board   @relation(fields: [boardId], references: [id])
+  board       Board   @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId     String 
   column      Column
   title       String

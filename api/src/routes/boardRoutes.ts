@@ -6,11 +6,11 @@ import {
 	deleteBoard,
 } from "../controllers/boardController";
 
-const router = express.Router();
+const boardRouter = express.Router();
 
-router.post("/", createBoard);
-router.get("/", getBoards);
-router.get("/:id", getBoardById);
-router.delete("/:id", deleteBoard);
+boardRouter.post("/", createBoard);
+boardRouter.get("/", getBoards);
+boardRouter.get("/:id", getBoardById);
+boardRouter.delete("/:id", deleteBoard);
 
-export default router;
+export default boardRouter;

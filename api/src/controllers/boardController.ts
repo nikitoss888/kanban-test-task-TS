@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
 
-const validateUUID = (id: string): boolean => {
+export const validateUUID = (id: string): boolean => {
 	const uuidRegex =
 		/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 	return uuidRegex.test(id);
 };
 
@@ -15,13 +16,10 @@ export const createBoard = async (req: Request, res: Response) => {
 		return;
 	}
 
-	// UUID validation
-	const boardId = validateUUID(id) ? id : crypto.randomUUID();
-
 	try {
 		const newBoard = await prisma.board.create({
 			data: {
-				id: boardId,
+				id: validateUUID(id) ? id : undefined,
 				name: name,
 			},
 		});
@@ -53,13 +51,18 @@ export const getBoardById = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	if (!id || !validateUUID(id)) {
-		res.status(400).json({ error: "Invalid board ID" });
+		res.status(400).json({ error: "Invalid board ID, need a valid UUID" });
 		return;
 	}
 
 	try {
 		const board = await prisma.board.findUnique({
 			where: { id: id },
+			include: {
+				cards: {
+					orderBy: { order: "asc" },
+				},
+			},
 		});
 
 		if (!board) {

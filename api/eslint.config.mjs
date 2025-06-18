@@ -15,7 +15,12 @@ export default defineConfig([
 		files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
 		languageOptions: { globals: globals.node },
 	},
-	globalIgnores(["node_modules/**", "dist/**", "generated/**"]),
+	globalIgnores([
+		"node_modules/**",
+		"dist/**",
+		"generated/**",
+		"eslint.config.mjs",
+	]),
 	tseslint.configs.recommended,
 	eslintConfigPrettier,
 ]);

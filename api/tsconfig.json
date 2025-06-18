@@ -5,8 +5,16 @@
 		"target": "es2024",
 		"moduleResolution": "node",
 		"sourceMap": true,
-		"rootDir": "src",
-		"outDir": "dist"
+		"rootDir": "./src",
+		"outDir": "dist",
+		"types": ["node", "jest", "ts-jest"]
 	},
-	"lib": ["es2024"]
+	"lib": ["es2024"],
+	"ts-node": {
+		"files": true,
+		"transpileOnly": true,
+		"scope": true,
+		"scopeDir": "src"
+	},
+	"include": ["src", "src/tests"]
 }
