@@ -97,7 +97,7 @@ export default function BoardForm() {
                             </p>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="danger" variant="light" onPress={onClose & setError("")}>
+                            <Button color="danger" variant="light" onPress={onClose}>
                                 Close
                             </Button>
                         </ModalFooter>
