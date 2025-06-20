@@ -9,7 +9,7 @@ export const validateUUID = (id: string): boolean => {
 };
 
 export const createBoard = async (req: Request, res: Response) => {
-	const { id, name } = req.body;
+	const { name } = req.body;
 
 	if (!name || typeof name !== "string") {
 		res.status(400).json({ error: "Board name is required" });
@@ -19,7 +19,6 @@ export const createBoard = async (req: Request, res: Response) => {
 	try {
 		const newBoard = await prisma.board.create({
 			data: {
-				id: validateUUID(id) ? id : undefined,
 				name: name,
 			},
 		});

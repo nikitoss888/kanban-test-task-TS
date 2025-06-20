@@ -14,16 +14,21 @@
 	"dependencies": {
 		"@dnd-kit/core": "^6.3.1",
 		"@dnd-kit/sortable": "^10.0.0",
+		"@heroui/react": "^2.8.0-beta.9",
+		"@heroui/system": "^2.4.17",
+		"@heroui/theme": "^2.4.17",
+		"@react-input/mask": "^2.0.4",
 		"@reduxjs/toolkit": "^2.8.2",
+		"@tailwindcss/postcss": "^4.1.10",
+		"framer-motion": "^12.18.1",
 		"next": "15.3.4",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
 		"react-redux": "^9.2.0",
-		"redux": "^5.0.1"
+		"tailwindcss": "^4"
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3",
-		"@tailwindcss/postcss": "^4",
 		"@types/node": "^20",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
@@ -32,7 +37,6 @@
 		"eslint-config-prettier": "^10.1.5",
 		"prettier": "^3.5.3",
 		"redux-devtools-extension": "^2.13.9",
-		"tailwindcss": "^4",
 		"typescript": "^5",
 		"typescript-eslint": "^8.34.1"
 	}
