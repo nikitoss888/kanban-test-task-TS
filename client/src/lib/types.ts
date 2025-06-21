@@ -1,24 +1,28 @@
-export type Board = {
+export interface Board {
 	id: string;
 	name: string;
-	cards?: Card[];
-};
+}
 
-export type Card = {
+export interface BoardAPI extends Board {
+	cards?: CardType[];
+}
+
+export type ColumnType = "TODO" | "IN_PROGRESS" | "DONE";
+
+export interface CardType {
+	id: string;
 	boardId: string;
-	column: string;
+	column: ColumnType;
 	title: string;
 	description?: string;
 	order: number;
-};
+}
 
-export type CardEntities = {
-	[id: string]: Card;
-};
+export type LoadingStatus = "idle" | "loading" | "error";
 
 export type StoreState = {
-	status: "idle" | "loading" | "error";
+	status: LoadingStatus;
 	board: Board | null;
-	cards: CardEntities | null;
+	cards: Record<string, CardType>;
 	error: string | null;
 };
