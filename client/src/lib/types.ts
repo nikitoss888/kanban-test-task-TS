@@ -9,6 +9,12 @@ export interface BoardAPI extends Board {
 
 export type ColumnType = "TODO" | "IN_PROGRESS" | "DONE";
 
+const columnTypes: ColumnType[] = ["TODO", "IN_PROGRESS", "DONE"];
+
+export const isOfColumnType = (value: string): value is ColumnType => {
+	return columnTypes.includes(value as ColumnType);
+};
+
 export interface CardType {
 	id: string;
 	boardId: string;

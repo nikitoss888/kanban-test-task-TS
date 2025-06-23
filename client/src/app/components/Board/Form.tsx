@@ -23,7 +23,6 @@ export default function Form() {
 	const blocked = (id && !idMask.test(id)) || (!id && name === "");
 
 	const onClick = async () => {
-		let result;
 		console.log(id, idMask.test(id));
 		if (blocked) return;
 
@@ -36,7 +35,7 @@ export default function Form() {
 
 	return (
 		<div className="flex flex-wrap items-center gap-4 w-full">
-			<div className="min-w-[220px]">
+			<div className="flex-auto">
 				<label className="flex flex-col gap-1">
 					Name:
 					<Input
@@ -50,7 +49,7 @@ export default function Form() {
 				</label>
 			</div>
 
-			<div className="flex-auto min-w-md">
+			<div className="flex-auto min-w-sm">
 				<label className="flex flex-col gap-1">
 					UUID:
 					<Input

@@ -1,72 +1,104 @@
-import { closestCorners, DndContext, PointerSensor, useSensor, useSensors, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
+import {
+	closestCorners,
+	DndContext,
+	PointerSensor,
+	useSensor,
+	useSensors,
+	DragEndEvent,
+	DragOverlay,
+	DragStartEvent,
+} from "@dnd-kit/core";
 import { moveCard } from "@/lib/store/slices/boardSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import Column from "./Column";
-import { ColumnType } from "@/lib/types";
 import { useState } from "react";
-import Card from "./Card";
+import CardItem from "./CardItem";
+import { restrictToWindowEdges } from "@dnd-kit/modifiers";
+import { CardType, ColumnType, isOfColumnType } from "@/lib/types";
 
-export default function Containers() {
-    const [activeCardId, setActiveCardId] = useState<string | null>(null);
+export default function Containers({
+	openForm,
+}: Readonly<{ openForm: (card?: CardType) => void }>) {
+	const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
-    const dispatch = useAppDispatch();
-    const cards = useAppSelector(state => state.board.cards);
+	const dispatch = useAppDispatch();
+	const { cards } = useAppSelector((state) => state.board);
 
-    const sensors = useSensors(useSensor(PointerSensor))
+	const sensors = useSensors(useSensor(PointerSensor));
 
-    const handleDragStart = (event: DragStartEvent) => {
-        setActiveCardId(event.active.id as string);
-    }
-    
-    const handleDragEnd = (event: DragEndEvent) => {
-        setActiveCardId(null);
-        const { active, over } = event;
+	const handleDragStart = (event: DragStartEvent) => {
+		setActiveCardId(event.active.id as string);
+	};
 
-        if (!over || active.id === over.id) return;
+	const handleDragEnd = (event: DragEndEvent) => {
+		setActiveCardId(null);
+		const { active, over } = event;
 
-        const sourceCard = cards[active.id];
-        const targetCard = cards[over.id];
+		if (!over) return;
 
-        const newColumn = targetCard.column;
-        const newOrder = targetCard.order;
+		const sourceCard = cards[active.id];
+		const overId = over.id as string;
 
-        console.log({
-            id: sourceCard.id,
-            title: sourceCard.title,
-            columnFrom: sourceCard.column,
-            orderFrom: sourceCard.order,
-            columnTo: newColumn,
-            orderTo: newOrder,
-        })
+		let newColumn: ColumnType;
+		let newOrder: number;
 
-        dispatch(moveCard({ id: sourceCard.id, column: newColumn, order: newOrder }));
-    };
+		if (overId && isOfColumnType(overId)) {
+			newColumn = overId;
 
-    const getCardsByColumn = (type: ColumnType) => {
-        return {
-            type,
-            cards: Object.values(cards).filter(card => card.column == type)
-        }
-    }
+			const columnCards = Object.values(cards)
+				.filter((c) => c.column === newColumn)
+				.sort((a, b) => a.order - b.order);
+
+			newOrder = columnCards.length
+				? columnCards[columnCards.length - 1].order + 1
+				: 1;
+		} else {
+			const targetCard = cards[overId];
+			newColumn = targetCard.column;
+			newOrder = targetCard.order;
+		}
+
+		if (sourceCard.column === newColumn && sourceCard.order === newOrder) {
+			return;
+		}
+
+		console.log(active, over);
+
+		console.log({
+			id: sourceCard.id,
+			title: sourceCard.title,
+			columnFrom: sourceCard.column,
+			orderFrom: sourceCard.order,
+			columnTo: newColumn,
+			orderTo: newOrder,
+		});
+
+		dispatch(
+			moveCard({ id: sourceCard.id, column: newColumn, order: newOrder })
+		);
+	};
 
 	return (
-        <DndContext
-            sensors={sensors}
-            collisionDetection={closestCorners}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-        >
-            <div className="flex w-full gap-4">
-                <Column {...getCardsByColumn('TODO')} />
-                <Column {...getCardsByColumn('IN_PROGRESS')} />
-                <Column {...getCardsByColumn('DONE')} />
-            </div>
+		<DndContext
+			sensors={sensors}
+			collisionDetection={closestCorners}
+			onDragStart={handleDragStart}
+			onDragEnd={handleDragEnd}
+		>
+			<div className="flex w-full gap-4">
+				<Column type="TODO" openForm={openForm} />
+				<Column type="IN_PROGRESS" openForm={openForm} />
+				<Column type="DONE" openForm={openForm} />
+			</div>
 
-            <DragOverlay>
-                {activeCardId ? (
-                    <Card card={cards[activeCardId]} isOverlay />
-                ) : null}
-            </DragOverlay>
-        </DndContext>
-    );
+			<DragOverlay
+				modifiers={[restrictToWindowEdges]}
+				dropAnimation={null}
+			>
+				{activeCardId ? (
+					<CardItem card={cards[activeCardId]} isDragged />
+				) : null}
+			</DragOverlay>
+		</DndContext>
+	);
 }

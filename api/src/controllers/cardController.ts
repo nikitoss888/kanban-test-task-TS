@@ -31,7 +31,8 @@ const orderingCards = async (
 			updCard.id,
 			updCard.boardId,
 			updCard.column,
-			updCard.order
+			updCard.order,
+			oldCard.column === updCard.column ? oldCard.order : undefined
 		);
 	}
 };
@@ -62,18 +63,21 @@ const decreaseOrders = async (
 		},
 	});
 };
+
 const increaseOrders = async (
 	id: string,
 	boardId: string,
 	column: Column,
-	from: number
+	fromOrder: number,
+	toOrder?: number
 ) => {
 	await prisma.card.updateMany({
 		where: {
 			boardId: boardId,
 			column: column,
 			order: {
-				gte: from,
+				gte: fromOrder,
+				lte: toOrder,
 			},
 			id: {
 				not: id,
@@ -252,8 +256,8 @@ export const updateCard = async (req: Request, res: Response) => {
 			data: {
 				title,
 				description,
-				column: column as Column ?? oldCard.column,
-				order: newOrder ?? oldCard.order,
+				column: (column as Column) && newOrder ? column : undefined,
+				order: (column as Column) && newOrder ? newOrder : undefined,
 			},
 		});
 
@@ -281,7 +285,9 @@ export const moveCard = async (req: Request, res: Response) => {
 	}
 
 	if (!column || typeof order !== "number") {
-		res.status(400).json({ error: "Both 'column' and 'order' are required" });
+		res.status(400).json({
+			error: "Both 'column' and 'order' are required",
+		});
 		return;
 	}
 
@@ -304,7 +310,7 @@ export const moveCard = async (req: Request, res: Response) => {
 		const oldCard = await prisma.card.findUnique({
 			where: { id },
 		});
-		
+
 		if (!oldCard) {
 			res.status(404).json({ error: "Card not found" });
 			return;
@@ -366,12 +372,7 @@ export const deleteCard = async (req: Request, res: Response) => {
 			where: { id },
 		});
 
-		await decreaseOrders(
-			id,
-			card.boardId,
-			card.column,
-			card.order,
-		);
+		await decreaseOrders(id, card.boardId, card.column, card.order);
 
 		res.status(204).send();
 	} catch (error) {

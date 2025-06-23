@@ -20,14 +20,14 @@
 	"type": "commonjs",
 	"main": "dist/index.ts",
 	"scripts": {
-		"build": "tsc --excludeDirectories tests",
+		"build": "tsc -p tsconfig.build.json",
 		"start": "node dist/server.js",
 		"dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-		"pretty": "prettier . --check",
-		"pretty:fix": "prettier --write .",
+		"pretty:check": "prettier . --check",
+		"pretty": "prettier --write .",
 		"lint:check": "eslint .",
 		"lint": "eslint . --fix",
-		"check": "npm run pretty:fix && npm run lint:fix && npm run build",
+		"check": "npm run pretty && npm run lint",
 		"test:prepare": "ts-node src/scripts/resetTestDb.ts",
 		"test": "cross-env NODE_ENV=test dotenv -e .env.test -- jest --verbose"
 	},

@@ -99,12 +99,14 @@ describe("Cards actions", () => {
 			.post("/cards")
 			.send(newCard)
 			.expect(201);
+
 		const cardId = createResponse.body.id;
 
 		const newOrder = 2;
 
 		const updatedCard = {
 			order: newOrder,
+			column: createResponse.body.column,
 		};
 
 		const oldCardsReq = await api
@@ -232,54 +234,56 @@ describe("Cards actions", () => {
 		expect(response.body.id).toBe(cardId);
 	});
 
-    test("DELETE /cards/:id - Delete a card", async () => {
-        const newCard = {
-            title: "Card to Delete",
-            description: "This card will be deleted",
-            boardId,
-        };
+	test("DELETE /cards/:id - Delete a card", async () => {
+		const newCard = {
+			title: "Card to Delete",
+			description: "This card will be deleted",
+			boardId,
+		};
 
-        const createResponse = await api
-            .post("/cards")
-            .send(newCard)
-            .expect(201);
-        const cardId = createResponse.body.id;
+		const createResponse = await api
+			.post("/cards")
+			.send(newCard)
+			.expect(201);
+		const cardId = createResponse.body.id;
 
-        await api.delete(`/cards/${cardId}`).expect(204);
+		await api.delete(`/cards/${cardId}`).expect(204);
 
-        await api.get(`/cards/${cardId}`).expect(404);
-    });
+		await api.get(`/cards/${cardId}`).expect(404);
+	});
 
-    test("DELETE /cards/:id - Decrease orders of cards after the deletion", async () => {
-        const column = "IN_PROGRESS"; // The column was populated in the previous tests
+	test("DELETE /cards/:id - Decrease orders of cards after the deletion", async () => {
+		const column = "IN_PROGRESS"; // The column was populated in the previous tests
 
-        const newCard = {
-            title: "Card to Delete",
-            description: "This card will be deleted (place in IN_PROGRESS, order 2)",
-            boardId,
-        };
+		const newCard = {
+			title: "Card to Delete",
+			description:
+				"This card will be deleted (place in IN_PROGRESS, order 2)",
+			boardId,
+		};
 
-        // Creating a new card, automatically placed in TODO
-        const createResponse = await api
-            .post("/cards")
-            .send(newCard)
-            .expect(201);
-        const cardId = createResponse.body.id;
+		// Creating a new card, automatically placed in TODO
+		const createResponse = await api
+			.post("/cards")
+			.send(newCard)
+			.expect(201);
+		const cardId = createResponse.body.id;
 
-        // Reading cards IN_PROGRESS before the move request
-        const cardsBeforeReq = await api
-        .get(`/cards/board/${boardId}`)
-        .expect(200);
-        
-        const cardsBefore = cardsBeforeReq.body.filter(
-            (card: { id: string; order: number, column: string }) => card.id !== cardId && card.column === column
-        );
+		// Reading cards IN_PROGRESS before the move request
+		const cardsBeforeReq = await api
+			.get(`/cards/board/${boardId}`)
+			.expect(200);
 
-        // Moving the card to IN_PROGRESS with order 2
-        const newOrder = 2;
-        const updatedCard = {
+		const cardsBefore = cardsBeforeReq.body.filter(
+			(card: { id: string; order: number; column: string }) =>
+				card.id !== cardId && card.column === column
+		);
+
+		// Moving the card to IN_PROGRESS with order 2
+		const newOrder = 2;
+		const updatedCard = {
 			column: column,
-			order: newOrder
+			order: newOrder,
 		};
 
 		const response = await api
@@ -287,74 +291,84 @@ describe("Cards actions", () => {
 			.send(updatedCard)
 			.expect(200);
 
-        expect(response.body.column).toBe(column);
-        expect(response.body.order).toBe(2);
+		expect(response.body.column).toBe(column);
+		expect(response.body.order).toBe(2);
 
-        // Reading cards IN_PROGRESS after the move request
-        const cardsAfterReq = await api
-            .get(`/cards/board/${boardId}`)
-            .expect(200);
-        const cardsAfter = cardsAfterReq.body.filter(
-            (card: { id: string; order: number, column: string }) => card.id !== cardId && card.column === column
-        );
-        
-        // Checking that the order of cards after the move request is correct
-        expect(cardsAfter.length).toBe(cardsBefore.length);
-        cardsAfter.forEach((card: { id: string; order: number }, index: number) => {
-            if (cardsBefore[index].order < newOrder) {
-                expect(card.order).toBe(cardsBefore[index].order);
-            }
-            else {
-                expect(card.order).toBe(cardsBefore[index].order + 1);
-            }
-        });
+		// Reading cards IN_PROGRESS after the move request
+		const cardsAfterReq = await api
+			.get(`/cards/board/${boardId}`)
+			.expect(200);
+		const cardsAfter = cardsAfterReq.body.filter(
+			(card: { id: string; order: number; column: string }) =>
+				card.id !== cardId && card.column === column
+		);
 
+		// Checking that the order of cards after the move request is correct
+		expect(cardsAfter.length).toBe(cardsBefore.length);
+		cardsAfter.forEach(
+			(card: { id: string; order: number }, index: number) => {
+				if (cardsBefore[index].order < newOrder) {
+					expect(card.order).toBe(cardsBefore[index].order);
+				} else {
+					expect(card.order).toBe(cardsBefore[index].order + 1);
+				}
+			}
+		);
 
-        await api.delete(`/cards/${cardId}`).expect(204);
-        await api.get(`/cards/${cardId}`).expect(404);
+		await api.delete(`/cards/${cardId}`).expect(204);
+		await api.get(`/cards/${cardId}`).expect(404);
 
-        // Reading cards IN_PROGRESS after the delete request
-        const cardsAfterDeleteReq = await api
-            .get(`/cards/board/${boardId}`)
-            .expect(200);
-        const cardsAfterDelete = cardsAfterDeleteReq.body.filter(
-            (card: { id: string; order: number, column: string }) => card.column === column
-        );
-        // Checking that the order of cards after the delete request is correct (no gaps in order)
-        expect(cardsAfterDelete.length).toBe(cardsBefore.length);
-        cardsAfterDelete.forEach((card: { id: string; order: number }, index: number) => {
-            expect(card.order).toBe(cardsBefore[index].order);
-        });
-    });
+		// Reading cards IN_PROGRESS after the delete request
+		const cardsAfterDeleteReq = await api
+			.get(`/cards/board/${boardId}`)
+			.expect(200);
+		const cardsAfterDelete = cardsAfterDeleteReq.body.filter(
+			(card: { id: string; order: number; column: string }) =>
+				card.column === column
+		);
+		// Checking that the order of cards after the delete request is correct (no gaps in order)
+		expect(cardsAfterDelete.length).toBe(cardsBefore.length);
+		cardsAfterDelete.forEach(
+			(card: { id: string; order: number }, index: number) => {
+				expect(card.order).toBe(cardsBefore[index].order);
+			}
+		);
+	});
 
-    test("GET /cards/:id - Invalid UUID", async () => {
-        const invalidId = "1234567890abcdef12345678"; // Example invalid ID
-        await api.get(`/cards/${invalidId}`).expect(400);
-    });
+	test("GET /cards/:id - Invalid UUID", async () => {
+		const invalidId = "1234567890abcdef12345678"; // Example invalid ID
+		await api.get(`/cards/${invalidId}`).expect(400);
+	});
 
-    test("GET /boards/:id - Board has Cards array attribute", async () => {
-        await api.get(`/boards/${boardId}`).expect(200).then((response) => {
-            expect(response.body).toHaveProperty("cards");
-            expect(Array.isArray(response.body.cards)).toBe(true);
-        });
-    });
+	test("GET /boards/:id - Board has Cards array attribute", async () => {
+		await api
+			.get(`/boards/${boardId}`)
+			.expect(200)
+			.then((response) => {
+				expect(response.body).toHaveProperty("cards");
+				expect(Array.isArray(response.body.cards)).toBe(true);
+			});
+	});
 
-    test("GET /cards/:id - Card has Board object attribute", async () => {
-        const newCard = {
-            title: "Card with Board",
-            description: "This card will have a Board object attribute",
-            boardId,
-        };
+	test("GET /cards/:id - Card has Board object attribute", async () => {
+		const newCard = {
+			title: "Card with Board",
+			description: "This card will have a Board object attribute",
+			boardId,
+		};
 
-        const createResponse = await api
-            .post("/cards")
-            .send(newCard)
-            .expect(201);
-        const cardId = createResponse.body.id;
+		const createResponse = await api
+			.post("/cards")
+			.send(newCard)
+			.expect(201);
+		const cardId = createResponse.body.id;
 
-        await api.get(`/cards/${cardId}`).expect(200).then((response) => {
-            expect(response.body).toHaveProperty("board");
-            expect(response.body.board).toHaveProperty("id", boardId);
-        });
-    });
+		await api
+			.get(`/cards/${cardId}`)
+			.expect(200)
+			.then((response) => {
+				expect(response.body).toHaveProperty("board");
+				expect(response.body.board).toHaveProperty("id", boardId);
+			});
+	});
 });

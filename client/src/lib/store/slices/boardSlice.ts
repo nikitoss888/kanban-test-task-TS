@@ -20,8 +20,14 @@ export const createBoard = createAsyncThunk(
 	async (boardId: string, { rejectWithValue }) => {
 		try {
 			return await fetchCreateBoard(boardId);
-		} catch (err: any) {
-			return rejectWithValue(err.error ?? "Failed to create the board");
+		} catch (err: unknown) {
+			const message = "Failed to create the board";
+			if (typeof err === "object" && err !== null && "error" in err) {
+				return rejectWithValue(
+					(err as { error?: string }).error ?? message
+				);
+			}
+			return rejectWithValue(message);
 		}
 	}
 );
@@ -31,8 +37,14 @@ export const fetchBoard = createAsyncThunk(
 	async (boardId: string, { rejectWithValue }) => {
 		try {
 			return await fetchGetBoard(boardId);
-		} catch (err: any) {
-			return rejectWithValue(err.error ?? "Failed to fetch the board");
+		} catch (err: unknown) {
+			const message = "Failed to fetch the board";
+			if (typeof err === "object" && err !== null && "error" in err) {
+				return rejectWithValue(
+					(err as { error?: string }).error ?? message
+				);
+			}
+			return rejectWithValue(message);
 		}
 	}
 );
@@ -49,8 +61,14 @@ export const createCard = createAsyncThunk(
 				data.title,
 				data.description
 			);
-		} catch (err: any) {
-			return rejectWithValue(err.error ?? "Failed to create the card");
+		} catch (err: unknown) {
+			const message = "Failed to create the card";
+			if (typeof err === "object" && err !== null && "error" in err) {
+				return rejectWithValue(
+					(err as { error?: string }).error ?? message
+				);
+			}
+			return rejectWithValue(message);
 		}
 	}
 );
@@ -63,8 +81,14 @@ export const editCard = createAsyncThunk(
 	) => {
 		try {
 			return await fetchEditCard(data.id, data.title, data.description);
-		} catch (err: any) {
-			return rejectWithValue(err.error ?? "Failed to edit the card");
+		} catch (err: unknown) {
+			const message = "Failed to edit the card";
+			if (typeof err === "object" && err !== null && "error" in err) {
+				return rejectWithValue(
+					(err as { error?: string }).error ?? message
+				);
+			}
+			return rejectWithValue(message);
 		}
 	}
 );
@@ -77,8 +101,14 @@ export const moveCard = createAsyncThunk(
 	) => {
 		try {
 			return await fetchMoveCard(data.id, data.column, data.order);
-		} catch (err: any) {
-			return rejectWithValue(err.error ?? "Failed to move the card");
+		} catch (err: unknown) {
+			const message = "Failed to move the card";
+			if (typeof err === "object" && err !== null && "error" in err) {
+				return rejectWithValue(
+					(err as { error?: string }).error ?? message
+				);
+			}
+			return rejectWithValue(message);
 		}
 	}
 );
@@ -87,13 +117,18 @@ export const deleteCard = createAsyncThunk(
 	"kanbak/deleteCard",
 	async (id: string, { rejectWithValue }) => {
 		try {
-			return id;
-		} catch (err: any) {
-			return rejectWithValue(err.error ?? "Failed to delete the card");
+			return await fetchDeleteCard(id);
+		} catch (err: unknown) {
+			const message = "Failed to delete the card";
+			if (typeof err === "object" && err !== null && "error" in err) {
+				return rejectWithValue(
+					(err as { error?: string }).error ?? message
+				);
+			}
+			return rejectWithValue(message);
 		}
 	}
 );
-
 
 const boardSlice = createSlice({
 	name: "board",
@@ -193,18 +228,18 @@ const boardSlice = createSlice({
 				state.error = null;
 
 				const movedCard: CardType = action.payload;
-				console.log(movedCard)
+				console.log("movedCard", movedCard);
 				const oldCard = state.cards[movedCard.id];
-				console.log(oldCard)
+				console.log("oldCard", oldCard);
 
 				const sameColumn = oldCard.column === movedCard.column;
-				console.log({sameColumn})
+				console.log({ sameColumn });
 
 				state.cards ??= Object.fromEntries([[movedCard.id, movedCard]]);
 				const destColumnCards = Object.values(state.cards).filter(
 					(card) => card.column === movedCard.column
 				);
-				console.log(destColumnCards)
+				console.log("destColumnCards", destColumnCards);
 
 				let maxOrder = 0;
 				if (destColumnCards.length > 0) {
@@ -212,20 +247,20 @@ const boardSlice = createSlice({
 						...destColumnCards.map((card) => card.order)
 					);
 				}
-				console.log({maxOrder})
+				console.log({ maxOrder });
 
 				const from = oldCard.order;
 				const to = Math.min(
 					movedCard.order,
 					maxOrder + (sameColumn ? 0 : 1)
 				);
-				console.log({ from, to })
+				console.log({ from, to });
 
 				state.cards[movedCard.id] = {
 					...movedCard,
 					order: to,
 				};
-				console.log(state.cards[movedCard.id])
+				console.log(state.cards[movedCard.id]);
 
 				Object.values(state.cards).forEach((card) => {
 					if (card.id === movedCard.id) return;
