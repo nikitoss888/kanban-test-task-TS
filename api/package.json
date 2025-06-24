@@ -18,7 +18,7 @@
 	"license": "ISC",
 	"author": "Oleksiichuk Mykyta",
 	"type": "commonjs",
-	"main": "dist/index.ts",
+	"main": "src/server.ts",
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
 		"start": "node dist/server.js",
@@ -35,7 +35,6 @@
 		"@eslint/js": "^9.29.0",
 		"@types/express": "^5.0.3",
 		"@types/jest": "^30.0.0",
-		"@types/node": "^24.0.3",
 		"@types/supertest": "^6.0.3",
 		"babel-cli": "^6.26.0",
 		"babel-preset-env": "^1.7.0",
@@ -56,6 +55,7 @@
 		"typescript-eslint": "^8.34.1"
 	},
 	"dependencies": {
+		"@types/node": "^24.0.3",
 		"@prisma/client": "^6.9.0",
 		"cors": "^2.8.5",
 		"dotenv": "^16.5.0",

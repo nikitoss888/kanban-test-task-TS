@@ -20,6 +20,8 @@ export default function Column({ type, openForm }: Readonly<ColumnProps>) {
 			.sort((a, b) => a.order - b.order)
 	);
 
+	const board = useAppSelector(state => state.board.board)
+
 	const { setNodeRef } = useDroppable({
 		id: type,
 	});
@@ -60,7 +62,7 @@ export default function Column({ type, openForm }: Readonly<ColumnProps>) {
 						/>
 					))}
 				</SortableContext>
-				{cards.length > 0 && type === "TODO" && openForm && (
+				{board && type === "TODO" && openForm && (
 					<Button
 						className="min-h-[80px] w-full bg-gray-700 text-gray-200 text-lg"
 						onPress={() => openForm()}

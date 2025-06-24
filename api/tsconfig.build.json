@@ -3,5 +3,15 @@
 	"exclude": [
 		"./src/tests",
 		"./src/scripts"
-	]
+	],
+	"compilerOptions": {
+		"module": "commonjs",
+		"esModuleInterop": true,
+		"target": "es2024",
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"rootDir": "./src",
+		"outDir": "dist",
+		"types": ["node"]
+	},
 }
